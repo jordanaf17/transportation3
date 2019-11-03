@@ -1,0 +1,128 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class GameController : MonoBehaviour
+{
+    public GameObject cubePrefab;
+    Vector3 cubePosition;
+    public static GameObject activeCube;
+    int airplaneI, airplaneM;
+    int startI, startM;
+    GameObject[,] grid;
+    int gridI, gridM;
+    bool airplaneActive;
+    float turnLength, takeTurn;
+    int cargo;
+    int cargoMax;
+    int cargoGain;
+    int depotI, depotM;
+    int score;
+
+    // i can't read x & y (they look too similar) so i'm using i & m instead!
+    // void start is below method
+    public void ProcessClick(GameObject cubeClicked, int i, int m)
+    {
+        if (i == airplaneI && m == airplaneM && !airplaneActive)
+        {
+            airplaneActive = true;
+        }
+        else if (i == airplaneI && m == airplaneM && airplaneActive)
+        {
+            airplaneActive = false;
+        }
+
+        /* if (GameController.activeCube != null)
+        {
+            GameController.activeCube.GetComponent<Renderer>().material.color = Color.white;
+        }
+        
+        gameObject.GetComponent<Renderer>().material.color = Color.red;
+        GameController.activeCube = gameObject; */
+
+
+    }
+
+    void Start()
+    {
+        turnLength = 1.5f;
+        takeTurn = turnLength;
+
+        cargo = 0;
+        cargoMax = 90;
+        cargoGain = 10;
+
+        gridI = 16;
+        gridM = 9;
+        grid = new GameObject[gridI, gridM];
+
+
+        for (int m = 0; m < gridM; m++)
+        {
+
+
+            for (int i = 0; i < gridI; i++)
+            {
+                cubePosition = new Vector3(i * 2, m * 2, 0);
+                grid[i, m] = Instantiate(cubePrefab, cubePosition, Quaternion.identity);
+                grid[i, m].GetComponent<CubeController>().myI = i;
+                grid[i, m].GetComponent<CubeController>().myM = m;
+
+                {
+
+                }
+                // upper left
+                startI = 0;
+                startM = 8;
+                airplaneI = startI;
+                airplaneM = startM;
+                grid[airplaneI, airplaneM].GetComponent<Renderer>().material.color = Color.red;
+                airplaneActive = false;
+
+                // lower right
+                depotI = 15;
+                depotM = 0;
+                grid[depotI, depotM].GetComponent<Renderer>().material.color = Color.black;
+
+
+
+            }
+        }
+    }
+
+    // methods
+    void LoadCargo()
+    {
+        if (airplaneI == startI && airplaneM == startM && cargo < cargoMax)
+        {
+            cargo += cargoGain;
+        }
+        if (cargo > cargoMax)
+        {
+            cargo = cargoMax;
+        }
+    }
+
+    void DeliverCargo()
+    {
+        if (airplaneI == depotI && airplaneM == depotM)
+        {
+            score += cargo;
+            cargo = 0;
+        }
+    }
+        void Update()
+        {
+            if (Time.time > takeTurn)
+            {
+                LoadCargo();
+                DeliverCargo();
+                print("Cargo:" + cargo + "Score:" + score);
+
+                takeTurn += turnLength;
+            }
+        }
+    }
+
+
+ 
